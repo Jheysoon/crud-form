@@ -1,7 +1,11 @@
 import HOURS from "../constants/hours";
 
-const TimeMinutes = ({ addMinutes }) => {
-  const date = new Date();
+const TimeMinutes = ({ addMinutes, timeType, value }) => {
+  const date = new Date(); //new Date(2022, 9, 15, 10, 0);
+
+  if (timeType === "today") {
+    date.setMinutes(date.getMinutes() + 15);
+  }
 
   const minutes = date.getMinutes().toString();
   const hour = date.getHours().toString();
@@ -16,14 +20,28 @@ const TimeMinutes = ({ addMinutes }) => {
       onChange={(e) => {
         addMinutes(e.target.value);
       }}
+      disabled={timeType === "asap"}
+      value={value}
     >
-      {HOURS.map((hour) => {
-        if (hour.value > Number(currentTime)) {
-          return <option value={hour.value}>{hour.label}</option>;
-        }
+      {(timeType === "tomorrow" || timeType === "today") && (
+        <>
+          {HOURS.map((hour) => {
+            if (hour.value >= Number(currentTime) || timeType === "tomorrow") {
+              return <option value={hour.value}>{hour.label}</option>;
+            }
 
-        return null;
-      })}
+            return null;
+          })}
+        </>
+      )}
+
+      {timeType === "asap" && (
+        <>
+          {HOURS.map((hour) => (
+            <option value={hour.value}>{hour.label}</option>
+          ))}
+        </>
+      )}
     </select>
   );
 };

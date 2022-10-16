@@ -10,6 +10,8 @@ import TimeType from "./components/TimeType";
 import { initialState, reducer } from "./reducer";
 import { initialTimeState, timeReducer } from "./reducer/time";
 
+import HOURS from "./constants/hours";
+
 const App = () => {
   const [products, productDispatch] = useReducer(reducer, initialState);
   const [time, timeDispatch] = useReducer(timeReducer, initialTimeState);
@@ -41,6 +43,31 @@ const App = () => {
       method: "POST",
       body: JSON.stringify(payload),
     });
+  };
+
+  const setTime = (type) => {
+    const date = new Date(); // new Date(2022, 9, 15, 10, 0);
+
+    if (type === "today") {
+      date.setMinutes(date.getMinutes() + 15);
+    }
+
+    //prettier-ignore
+    const minutes = date.getMinutes().toString() === "0"  ? "00" : date.getMinutes().toString();
+    const hour = date.getHours().toString();
+
+    const currentTime = hour + minutes;
+
+    for (let i = 0; i < HOURS.length; i++) {
+      if (HOURS[i].value >= Number(currentTime)) {
+        timeDispatch({
+          type: "ADD_SCHEDULE",
+          payload: { time: HOURS[i].value },
+        });
+
+        break;
+      }
+    }
   };
 
   return (
@@ -89,23 +116,34 @@ const App = () => {
               <TimeType
                 value={time.type}
                 addTimeType={(type) => {
+                  let _time = {};
+
+                  if (type === "tomorrow") {
+                    _time = { time: HOURS[0].value };
+                  }
+
                   timeDispatch({
                     type: "ADD_SCHEDULE",
-                    payload: { type: type, time: "" },
+                    payload: { type: type, ..._time },
                   });
+
+                  // set the default time whenever change time type is change
+                  if (type === "asap" || type === "today") {
+                    setTime(type);
+                  }
                 }}
               />
 
-              {time.type === "today" && (
-                <TimeMinutes
-                  addMinutes={(time) => {
-                    timeDispatch({
-                      type: "ADD_SCHEDULE",
-                      payload: { time: time },
-                    });
-                  }}
-                />
-              )}
+              <TimeMinutes
+                value={time.time}
+                timeType={time.type}
+                addMinutes={(time) => {
+                  timeDispatch({
+                    type: "ADD_SCHEDULE",
+                    payload: { time: time },
+                  });
+                }}
+              />
             </div>
           </fieldset>
 

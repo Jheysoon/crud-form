@@ -1,5 +1,5 @@
 export const initialTimeState = {
-  type: "asap",
+  type: "today",
   time: "",
 };
 
