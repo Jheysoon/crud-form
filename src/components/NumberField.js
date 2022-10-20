@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const NumberField = ({ products, addQuantity }) => {
   const [value, setValue] = useState("");
 
-  let availableQuantity = 5;
+  const availableQuantity = useMemo(() => {
+    const initialValue = 5;
+    const sumWithInitial = products.reduce(
+      (previousValue, currentValue) => previousValue - currentValue.quantity,
+      initialValue
+    );
 
-  products.forEach((product) => {
-    availableQuantity -= product.quantity;
-  });
+    return sumWithInitial;
+  }, [products]);
 
   return (
     <input
